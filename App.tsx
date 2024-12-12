@@ -1,118 +1,150 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, { useEffect } from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Home, Grid, BarChart2 } from 'lucide-react-native';
+import { HomeScreen } from './src/screens/HomeScreen';
+import { AddTransactionScreen } from './src/screens/AddTransactionScreen';
+import { CategoriesScreen } from './src/screens/CategoriesScreen';
+import { AddCategoryScreen } from './src/screens/AddCategoryScreen';
+import { ReportsScreen } from './src/screens/ReportsScreen';
+import { initDatabase } from './src/database/database';
+import { theme } from './src/theme/theme';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const HomeStack = () => (
+  <Stack.Navigator
+    screenOptions={{
+      headerStyle: {
+        backgroundColor: theme.colors.primary,
+      },
+      headerTintColor: theme.colors.background,
+      headerTitleStyle: {
+        ...theme.typography.h3,
+      },
+    }}
+  >
+    <Stack.Screen
+      name="HomeScreen"
+      component={HomeScreen}
+      options={{ title: 'Finance Manager' }}
+    />
+    <Stack.Screen
+      name="AddTransaction"
+      component={AddTransactionScreen}
+      options={{ title: 'Add Transaction' }}
+    />
+  </Stack.Navigator>
+);
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+const CategoriesStack = () => (
+  <Stack.Navigator
+    screenOptions={{
+      headerStyle: {
+        backgroundColor: theme.colors.primary,
+      },
+      headerTintColor: theme.colors.background,
+      headerTitleStyle: {
+        ...theme.typography.h3,
+      },
+    }}
+  >
+    <Stack.Screen
+      name="CategoriesScreen"
+      component={CategoriesScreen}
+      options={{ title: 'Categories' }}
+    />
+    <Stack.Screen
+      name="AddCategory"
+      component={AddCategoryScreen}
+      options={{ title: 'Add Category' }}
+    />
+  </Stack.Navigator>
+);
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+const ReportsStack = () => (
+  <Stack.Navigator
+    screenOptions={{
+      headerStyle: {
+        backgroundColor: theme.colors.primary,
+      },
+      headerTintColor: theme.colors.background,
+      headerTitleStyle: {
+        ...theme.typography.h3,
+      },
+    }}
+  >
+    <Stack.Screen
+      name="ReportsScreen"
+      component={ReportsScreen}
+      options={{ title: 'Reports' }}
+    />
+  </Stack.Navigator>
+);
 
 function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  useEffect(() => {
+    const setupDatabase = async () => {
+      try {
+        await initDatabase();
+      } catch (error) {
+        console.error('Failed to initialize database:', error);
+      }
+    };
+    setupDatabase();
+  }, []);
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <NavigationContainer>
+        <Tab.Navigator
+          screenOptions={{
+            tabBarActiveTintColor: theme.colors.primary,
+            tabBarInactiveTintColor: theme.colors.secondary,
+            tabBarStyle: {
+              backgroundColor: theme.colors.background,
+              borderTopColor: theme.colors.border,
+              height: 64,
+              paddingBottom: 8,
+              paddingTop: 8,
+            },
+            headerShown: false,
+          }}
+        >
+          <Tab.Screen
+            name="Home"
+            component={HomeStack}
+            options={{
+              tabBarIcon: ({ color, size }) => (
+                <Home size={size} color={color} />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="Categories"
+            component={CategoriesStack}
+            options={{
+              tabBarIcon: ({ color, size }) => (
+                <Grid size={size} color={color} />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="Reports"
+            component={ReportsStack}
+            options={{
+              tabBarIcon: ({ color, size }) => (
+                <BarChart2 size={size} color={color} />
+              ),
+            }}
+          />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 }
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
 
 export default App;
